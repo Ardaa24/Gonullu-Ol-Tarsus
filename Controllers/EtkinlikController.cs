@@ -25,6 +25,19 @@ public class EtkinlikController : Controller
         if (etkinlik is null) return NotFound();
 
         var kullaniciId = _userManager.GetUserId(User);
+
+        // IDOR Koruması: Etkinlik onaylanmamışsa veya iptal edilmişse,
+        // sadece admin veya etkinliği oluşturan kişi görebilir.
+        if (!etkinlik.AdminOnaylandi || etkinlik.IptalEdildi)
+        {
+            var isCreator = kullaniciId == etkinlik.UyeId;
+            var isAdmin = User.IsInRole("Admin") || User.IsInRole("Super Admin");
+            if (!isCreator && !isAdmin)
+            {
+                return NotFound();
+            }
+        }
+
         var model = new EtkinlikDetayViewModel
         {
             Id = etkinlik.Id,
@@ -83,9 +96,10 @@ public class EtkinlikController : Controller
             TempData["MesajTipi"] = "success";
             return RedirectToAction("Index", "Home");
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            // Loglama normalde ILogger ile yapılır, burada domain modelden fırlatılan özel mesajları da güvenli şekilde ele alıyoruz.
+            ModelState.AddModelError(string.Empty, "Etkinlik oluşturulurken bir kural hatası oluştu. Lütfen bilgileri kontrol edin.");
             return View(model);
         }
     }

@@ -11,8 +11,8 @@ public class Uye : IdentityUser
     public string Ad { get; set; } = string.Empty;
     public string Soyad { get; set; } = string.Empty;
     public string? Biyografi { get; set; }
-    public DateTime KayitTarihi { get; set; } = DateTime.UtcNow;
-    public bool Onayli { get; set; } = true;
+    public DateTime KayitTarihi { get; init; } = DateTime.UtcNow;
+    public bool Onayli { get; private set; } = true;
 
     // Navigasyon özellikleri
     public ICollection<Katilim> Katilimlar { get; private set; } = new List<Katilim>();

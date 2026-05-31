@@ -11,8 +11,7 @@ namespace GonulluOlTarsus.Infrastructure.Data;
 /// </summary>
 public static class SeedData
 {
-    private const string AdminEmail = "admin@gonulluoltarsus.com";
-    private const string AdminSifre = "Admin@1234!";
+
 
     public static async Task InitializeAsync(IServiceProvider services)
     {
@@ -27,8 +26,17 @@ public static class SeedData
         // Rolleri oluştur
         await RollerOlustur(roleManager);
 
-        // Admin kullanıcısını oluştur
-        var admin = await AdminOlustur(userManager);
+        // Admin Kullanıcısı
+        var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        var adminEmail = config["AdminSettings:DefaultEmail"] ?? "admin@gonulluoltarsus.com";
+        var adminSifre = config["AdminSettings:DefaultPassword"];
+
+        if (string.IsNullOrEmpty(adminSifre))
+        {
+            throw new InvalidOperationException("Güvenlik Uyarısı: Sistemde Süper Admin şifresi ayarlanmamış! Lütfen 'dotnet user-secrets' kullanarak 'AdminSettings:DefaultPassword' belirleyin.");
+        }
+
+        var admin = await AdminOlustur(userManager, adminEmail, adminSifre);
 
         // Örnek etkinlikleri ekle
         await EtkinlikleriEkle(context, admin.Id);
@@ -44,9 +52,9 @@ public static class SeedData
         }
     }
 
-    private static async Task<Uye> AdminOlustur(UserManager<Uye> userManager)
+    private static async Task<Uye> AdminOlustur(UserManager<Uye> userManager, string adminEmail, string adminSifre)
     {
-        var mevcutAdmin = await userManager.FindByEmailAsync(AdminEmail);
+        var mevcutAdmin = await userManager.FindByEmailAsync(adminEmail);
         if (mevcutAdmin != null)
         {
             if (!await userManager.IsInRoleAsync(mevcutAdmin, "Super Admin"))
@@ -58,16 +66,16 @@ public static class SeedData
 
         var admin = new Uye
         {
-            UserName = AdminEmail,
-            Email = AdminEmail,
-            Ad = "Platform",
+            UserName = adminEmail,
+            Email = adminEmail,
+            Ad = "Sistem",
             Soyad = "Yöneticisi",
             EmailConfirmed = true,
             Biyografi = "Gönüllü Ol | Tarsus platform yöneticisi.",
             KayitTarihi = DateTime.UtcNow
         };
 
-        var sonuc = await userManager.CreateAsync(admin, AdminSifre);
+        var sonuc = await userManager.CreateAsync(admin, adminSifre);
         if (sonuc.Succeeded)
             await userManager.AddToRoleAsync(admin, "Super Admin");
 

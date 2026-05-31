@@ -44,6 +44,9 @@ public class AppDbContext : IdentityDbContext<Uye>
                   .HasForeignKey(e => e.UyeId)
                   .OnDelete(DeleteBehavior.Restrict);
 
+            // Soft-Delete (Global Query Filter)
+            entity.HasQueryFilter(e => e.AktifMi);
+
             // EF Core'un private _katilimlar listesine erişimini sağla
             entity.HasMany(e => e.Katilimlar)
                   .WithOne(k => k.Etkinlik)

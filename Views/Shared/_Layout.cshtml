@@ -87,7 +87,7 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <span class="text-sm text-slate-500">Merhaba, <strong class="text-slate-700">@User.Identity.Name?.Split('@')[0]</strong></span>
-                        @if (User.IsInRole("Admin"))
+                        @if (User.IsInRole("Admin") || User.IsInRole("Super Admin"))
                         {
                             <a href="/Admin" class="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-xs font-semibold hover:bg-amber-200 transition-all">
                                 ⚙️ Yönetim

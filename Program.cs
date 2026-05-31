@@ -3,6 +3,7 @@ using GonulluOlTarsus.Domain.Interfaces;
 using GonulluOlTarsus.Infrastructure.Data;
 using GonulluOlTarsus.Services.Abstract;
 using GonulluOlTarsus.Services.Concrete;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,8 +41,21 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Giris";
     options.LogoutPath = "/Account/Cikis";
     options.AccessDeniedPath = "/Account/ErisimEngellendi";
-    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// İstek Sınırlandırma (Rate Limiting)
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("general", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+    });
 });
 
 
@@ -63,8 +77,21 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Güvenlik Başlıkları (Security Headers)
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
+
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseRateLimiter(); // Routing sonrası, Auth öncesi önerilir.
+
 app.UseAuthentication();
 app.UseAuthorization();
 

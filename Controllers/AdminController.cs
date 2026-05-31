@@ -127,8 +127,14 @@ public class AdminController : Controller
             }
         }
 
-        var adSoyad = model.TamAd.Split(' ', 2);
-        user.Ad = adSoyad[0];
+        if (string.IsNullOrWhiteSpace(model.TamAd))
+        {
+            ModelState.AddModelError("TamAd", "Ad Soyad boş olamaz.");
+            return View(model);
+        }
+
+        var adSoyad = model.TamAd.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        user.Ad = adSoyad.Length > 0 ? adSoyad[0] : "İsimsiz";
         user.Soyad = adSoyad.Length > 1 ? adSoyad[1] : "";
         
         user.Email = model.Email;
