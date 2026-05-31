@@ -1,0 +1,73 @@
+@using GonulluOlTarsus.Domain.Entities
+@model IEnumerable<Etkinlik>
+@{
+    ViewData["Title"] = "Admin Paneli — Onay Bekleyenler";
+}
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+        <h1 class="text-2xl font-extrabold text-slate-800 mb-2">⚙️ Admin Paneli</h1>
+        <p class="text-slate-400 text-sm">Onay bekleyen etkinlikleri inceleyin ve yayınlayın.</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+            <span class="text-5xl">✅</span>
+            <h2 class="text-lg font-semibold text-slate-600 mt-4">Tüm etkinlikler incelendi</h2>
+            <p class="text-slate-400 text-sm mt-2">Onay bekleyen etkinlik bulunmuyor.</p>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-4">
+            @foreach (var etkinlik in Model)
+            {
+                <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
+                                    ⏳ Onay Bekliyor
+                                </span>
+                                <span class="text-xs text-slate-400">
+                                    @etkinlik.OlusturulmaTarihi.ToString("dd MMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR"))
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 mb-1">@etkinlik.Baslik</h3>
+                            <p class="text-sm text-slate-400 mb-2">
+                                📅 @etkinlik.Tarih.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("tr-TR")) •
+                                📍 @etkinlik.Konum •
+                                👥 @etkinlik.Kontenjan kişilik
+                            </p>
+                            <p class="text-sm text-slate-600 line-clamp-2">@etkinlik.Aciklama</p>
+                            @if (etkinlik.Uye != null)
+                            {
+                                <p class="text-xs text-slate-400 mt-2">
+                                    Oluşturan: <strong>@etkinlik.Uye.TamAd</strong> (@etkinlik.Uye.Email)
+                                </p>
+                            }
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <form asp-action="Onayla" asp-route-id="@etkinlik.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="px-4 py-2 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-all">
+                                    ✅ Onayla
+                                </button>
+                            </form>
+                            <form asp-action="Reddet" asp-route-id="@etkinlik.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        onclick="return confirm('Bu etkinliği reddetmek istediğinizden emin misiniz?')"
+                                        class="px-4 py-2 border border-red-200 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-50 transition-all">
+                                    ❌ Reddet
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

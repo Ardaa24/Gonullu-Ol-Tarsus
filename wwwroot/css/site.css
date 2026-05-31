@@ -1,0 +1,81 @@
+/* ================================================
+   Gönüllü Ol | Tarsus — Özel CSS
+   Tailwind CDN kullanıldığından minimal custom CSS.
+   ================================================ */
+
+/* Tailwind direktifleri (CDN kullanılıyorsa bu satırlar gerekli değil,
+   CLI build için buraya @tailwind base/components/utilities ekleyin) */
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Metin kırpma yardımcıları */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Fade-in animasyonu (Flash mesajlar için) */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Form validation hatası görünürlüğü */
+.field-validation-error {
+    display: block;
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.input-validation-error {
+    border-color: #fca5a5 !important;
+    background-color: #fef2f2 !important;
+}
+
+/* Prose stili (açıklama metni) */
+.prose p {
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #475569;
+}
+
+/* Etkinlik kartı geçişleri */
+.etkinlik-karti {
+    will-change: transform, box-shadow;
+}
+
+/* Scrollbar iyileştirme */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
