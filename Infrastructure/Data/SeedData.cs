@@ -36,7 +36,7 @@ public static class SeedData
 
     private static async Task RollerOlustur(RoleManager<IdentityRole> roleManager)
     {
-        string[] roller = ["Admin", "Gonullu"];
+        string[] roller = ["Super Admin", "Admin", "Gonullu"];
         foreach (var rol in roller)
         {
             if (!await roleManager.RoleExistsAsync(rol))
@@ -47,7 +47,14 @@ public static class SeedData
     private static async Task<Uye> AdminOlustur(UserManager<Uye> userManager)
     {
         var mevcutAdmin = await userManager.FindByEmailAsync(AdminEmail);
-        if (mevcutAdmin != null) return mevcutAdmin;
+        if (mevcutAdmin != null)
+        {
+            if (!await userManager.IsInRoleAsync(mevcutAdmin, "Super Admin"))
+            {
+                await userManager.AddToRoleAsync(mevcutAdmin, "Super Admin");
+            }
+            return mevcutAdmin;
+        }
 
         var admin = new Uye
         {
@@ -62,7 +69,7 @@ public static class SeedData
 
         var sonuc = await userManager.CreateAsync(admin, AdminSifre);
         if (sonuc.Succeeded)
-            await userManager.AddToRoleAsync(admin, "Admin");
+            await userManager.AddToRoleAsync(admin, "Super Admin");
 
         return admin;
     }

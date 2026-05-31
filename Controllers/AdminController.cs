@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GonulluOlTarsus.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Super Admin")]
 public class AdminController : Controller
 {
     private readonly IEtkinlikService _etkinlikService;
@@ -73,6 +73,18 @@ public class AdminController : Controller
         if (user == null) return NotFound();
 
         var roles = await _userManager.GetRolesAsync(user);
+        var currentUserRoles = await _userManager.GetRolesAsync(await _userManager.GetUserAsync(User));
+
+        // Admin kendi rol arkadaşlarını veya Super Adminleri düzenleyemez (Super Admin herkesi düzenleyebilir)
+        if (!currentUserRoles.Contains("Super Admin"))
+        {
+            if (roles.Contains("Super Admin") || (roles.Contains("Admin") && user.Id != _userManager.GetUserId(User)))
+            {
+                TempData["Mesaj"] = "Yetkiniz bu kullanıcıyı düzenlemek için yeterli değil.";
+                TempData["MesajTipi"] = "error";
+                return RedirectToAction(nameof(Kullanicilar));
+            }
+        }
 
         var model = new AdminKullaniciDuzenleViewModel
         {
@@ -95,6 +107,26 @@ public class AdminController : Controller
         var user = await _userManager.FindByIdAsync(model.Id);
         if (user == null) return NotFound();
 
+        var roles = await _userManager.GetRolesAsync(user);
+        var currentUserRoles = await _userManager.GetRolesAsync(await _userManager.GetUserAsync(User));
+
+        // Yetki Kontrolü
+        if (!currentUserRoles.Contains("Super Admin"))
+        {
+            if (roles.Contains("Super Admin") || (roles.Contains("Admin") && user.Id != _userManager.GetUserId(User)))
+            {
+                TempData["Mesaj"] = "Yetkiniz bu kullanıcıyı düzenlemek için yeterli değil.";
+                TempData["MesajTipi"] = "error";
+                return RedirectToAction(nameof(Kullanicilar));
+            }
+            // Admin başka birini Super Admin yapamaz
+            if (model.Rol == "Super Admin")
+            {
+                ModelState.AddModelError("", "Süper Admin yetkisi verme hakkınız yok.");
+                return View(model);
+            }
+        }
+
         var adSoyad = model.TamAd.Split(' ', 2);
         user.Ad = adSoyad[0];
         user.Soyad = adSoyad.Length > 1 ? adSoyad[1] : "";
@@ -108,7 +140,13 @@ public class AdminController : Controller
         if (!string.IsNullOrWhiteSpace(model.YeniSifre))
         {
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            await _userManager.ResetPasswordAsync(user, token, model.YeniSifre);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.YeniSifre);
+            if (!result.Succeeded)
+            {
+                foreach (var err in result.Errors)
+                    ModelState.AddModelError("YeniSifre", err.Description);
+                return View(model);
+            }
         }
 
         // Rol değiştirme

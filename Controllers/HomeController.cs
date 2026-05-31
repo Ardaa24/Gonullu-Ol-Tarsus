@@ -44,5 +44,28 @@ public class HomeController : Controller
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error() => View();
+    public IActionResult NasilCalisir()
+    {
+        return View();
+    }
+
+    public IActionResult Hakkimizda()
+    {
+        return View();
+    }
+
+    public IActionResult GizlilikPolitikasi()
+    {
+        return View();
+    }
+
+    public IActionResult CerezPolitikasi()
+    {
+        return View();
+    }
+
+    public IActionResult Error()
+    {
+        return View();
+    }
 }

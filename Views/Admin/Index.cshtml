@@ -55,14 +55,18 @@
     </div>
 
     <!-- Grafikler -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Son 7 Günlük Üye Kaydı</h2>
-            <canvas id="uyeChart" class="w-full h-64"></canvas>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[400px] flex flex-col">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex-none">Son 7 Günlük Üye Kaydı</h2>
+            <div class="relative flex-1 w-full h-full">
+                <canvas id="uyeChart" class="absolute inset-0"></canvas>
+            </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Son 7 Günlük Etkinlik Oluşturma</h2>
-            <canvas id="etkinlikChart" class="w-full h-64"></canvas>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-[400px] flex flex-col">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex-none">Son 7 Günlük Etkinlik Oluşturma</h2>
+            <div class="relative flex-1 w-full h-full">
+                <canvas id="etkinlikChart" class="absolute inset-0"></canvas>
+            </div>
         </div>
     </div>
 </div>

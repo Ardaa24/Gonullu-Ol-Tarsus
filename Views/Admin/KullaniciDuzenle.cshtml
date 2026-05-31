@@ -37,6 +37,10 @@
                 <select asp-for="Rol" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-400 focus:outline-none appearance-none">
                     <option value="Gonullu">Gönüllü (Normal Üye)</option>
                     <option value="Admin">Admin</option>
+                    @if (User.IsInRole("Super Admin") || Model.Rol == "Super Admin")
+                    {
+                        <option value="Super Admin">Süper Admin</option>
+                    }
                 </select>
                 <span asp-validation-for="Rol" class="text-red-500 text-xs"></span>
             </div>
