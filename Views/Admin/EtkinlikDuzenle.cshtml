@@ -1,0 +1,80 @@
+@model AdminEtkinlikDuzenleViewModel
+@{
+    ViewData["Title"] = "Etkinlik Düzenle";
+}
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <nav class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+        <a href="/Admin" class="hover:text-brand-600 transition-colors">Admin Dashboard</a>
+        <span>›</span>
+        <a href="/Admin/Etkinlikler" class="hover:text-brand-600 transition-colors">Etkinlikler</a>
+        <span>›</span>
+        <span class="text-slate-600 font-medium">Düzenle</span>
+    </nav>
+    <h1 class="text-2xl font-extrabold text-slate-800 mb-8">Etkinliği Düzenle</h1>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+        <form asp-action="EtkinlikDuzenle" method="post" class="space-y-5">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="p-3 bg-red-50 text-red-700 rounded-xl text-sm hidden [&:not(:empty)]:block"></div>
+
+            <!-- Başlık -->
+            <div>
+                <label asp-for="Baslik" class="block text-sm font-semibold text-slate-700 mb-1.5"></label>
+                <input asp-for="Baslik" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" />
+                <span asp-validation-for="Baslik" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Açıklama -->
+            <div>
+                <label asp-for="Aciklama" class="block text-sm font-semibold text-slate-700 mb-1.5"></label>
+                <textarea asp-for="Aciklama" rows="5" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"></textarea>
+                <span asp-validation-for="Aciklama" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Tarih ve Kontenjan -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="Tarih" class="block text-sm font-semibold text-slate-700 mb-1.5"></label>
+                    <input asp-for="Tarih" type="datetime-local" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" />
+                    <span asp-validation-for="Tarih" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label asp-for="Kontenjan" class="block text-sm font-semibold text-slate-700 mb-1.5"></label>
+                    <input asp-for="Kontenjan" type="number" min="1" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" />
+                    <span asp-validation-for="Kontenjan" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+            </div>
+
+            <!-- Konum -->
+            <div>
+                <label asp-for="Konum" class="block text-sm font-semibold text-slate-700 mb-1.5"></label>
+                <input asp-for="Konum" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" />
+                <span asp-validation-for="Konum" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Kategori -->
+            <div>
+                <label asp-for="Kategori" class="block text-sm font-semibold text-slate-700 mb-1.5"></label>
+                <select asp-for="Kategori" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 appearance-none">
+                    <option value="@((int)GonulluOlTarsus.Domain.Enums.KategoriTip.Cevre)">🌿 Çevre</option>
+                    <option value="@((int)GonulluOlTarsus.Domain.Enums.KategoriTip.Barinak)">🐾 Barınak</option>
+                    <option value="@((int)GonulluOlTarsus.Domain.Enums.KategoriTip.Egitim)">📚 Eğitim</option>
+                    <option value="@((int)GonulluOlTarsus.Domain.Enums.KategoriTip.YasliBakimi)">💛 Yaşlı Bakımı</option>
+                    <option value="@((int)GonulluOlTarsus.Domain.Enums.KategoriTip.Diger)">🤝 Diğer</option>
+                </select>
+                <span asp-validation-for="Kategori" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Butonlar -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <a href="/Admin/Etkinlikler" class="px-5 py-2.5 text-slate-500 rounded-xl hover:bg-gray-100 transition-all text-sm font-medium">İptal</a>
+                <button type="submit" class="px-7 py-2.5 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all text-sm shadow-md hover:shadow-lg">
+                    💾 Güncelle
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

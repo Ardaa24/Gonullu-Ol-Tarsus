@@ -37,7 +37,13 @@
                         })">
                         @Model.KategoriEmoji @Model.KategoriAdi
                     </span>
-                    @if (!Model.AdminOnaylandi)
+                    @if (Model.IptalEdildi)
+                    {
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-sm font-semibold border border-red-200">
+                            🚫 İptal Edildi
+                        </span>
+                    }
+                    else if (!Model.AdminOnaylandi)
                     {
                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full text-sm font-semibold border border-amber-200">
                             ⏳ Admin Onayı Bekleniyor
@@ -148,7 +154,14 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-20">
                 <h2 class="text-base font-bold text-slate-800 mb-4">Gönüllü Ol</h2>
 
-                @if (Model.EtkinlikGecmis)
+                @if (Model.IptalEdildi)
+                {
+                    <div class="p-3 bg-red-50 rounded-xl text-center">
+                        <p class="text-sm text-red-600 font-bold">🚫 Bu etkinlik iptal edilmiştir.</p>
+                        <p class="text-xs text-red-500 mt-1">Katılım sağlanamaz.</p>
+                    </div>
+                }
+                else if (Model.EtkinlikGecmis)
                 {
                     <div class="p-3 bg-gray-50 rounded-xl text-center">
                         <p class="text-sm text-slate-400">⏰ Bu etkinlik sona erdi.</p>
@@ -194,6 +207,23 @@
                                     onclick="return confirm('Katılımınızı iptal etmek istediğinizden emin misiniz?')"
                                     class="w-full py-2.5 border border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all text-sm">
                                 Katılımı İptal Et
+                            </button>
+                        </form>
+                    </div>
+                }
+                else if (Model.KullaniciKendiEtkinligi)
+                {
+                    <div class="space-y-3">
+                        <div class="p-3 bg-blue-50 rounded-xl text-center">
+                            <p class="text-sm text-blue-700 font-semibold">Bu etkinliği siz oluşturdunuz.</p>
+                            <p class="text-xs text-blue-500 mt-1">Kendi etkinliğinize katılamazsınız.</p>
+                        </div>
+                        <form asp-controller="Etkinlik" asp-action="IptalEt" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    onclick="return confirm('Etkinliği iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz.')"
+                                    class="w-full py-2.5 border border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all text-sm mt-2">
+                                Etkinliği İptal Et
                             </button>
                         </form>
                     </div>

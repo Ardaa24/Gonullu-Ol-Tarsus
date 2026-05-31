@@ -1,0 +1,90 @@
+@model IEnumerable<AdminEtkinlikListeViewModel>
+@{
+    ViewData["Title"] = "Etkinlik Yönetimi";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Breadcrumb & Header -->
+    <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div>
+            <nav class="flex items-center gap-2 text-sm text-slate-400 mb-2">
+                <a href="/Admin" class="hover:text-brand-600 transition-colors">Admin Dashboard</a>
+                <span>›</span>
+                <span class="text-slate-600 font-medium">Etkinlikler</span>
+            </nav>
+            <h1 class="text-2xl font-extrabold text-slate-800">🌿 Etkinlik Yönetimi</h1>
+        </div>
+    </div>
+
+    <!-- Etkinlikler Tablosu -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="py-4 px-6 font-semibold text-slate-600 text-sm">Başlık</th>
+                        <th class="py-4 px-6 font-semibold text-slate-600 text-sm">Oluşturan</th>
+                        <th class="py-4 px-6 font-semibold text-slate-600 text-sm">Tarih</th>
+                        <th class="py-4 px-6 font-semibold text-slate-600 text-sm">Durum</th>
+                        <th class="py-4 px-6 font-semibold text-slate-600 text-sm text-right">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach (var etkinlik in Model)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-3 px-6 text-sm text-slate-800 font-medium max-w-xs truncate" title="@etkinlik.Baslik">
+                                <a href="/Etkinlik/Detay/@etkinlik.Id" class="hover:text-brand-600 transition-colors">@etkinlik.Baslik</a>
+                            </td>
+                            <td class="py-3 px-6 text-sm text-slate-600">@etkinlik.Olusturan</td>
+                            <td class="py-3 px-6 text-sm text-slate-500">@etkinlik.Tarih.ToString("dd MMM yyyy HH:mm")</td>
+                            <td class="py-3 px-6 text-sm">
+                                @if (etkinlik.IptalEdildi)
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">İptal Edildi</span>
+                                }
+                                else if (!etkinlik.AdminOnaylandi)
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Onay Bekliyor</span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Yayında</span>
+                                }
+                            </td>
+                            <td class="py-3 px-6 text-sm text-right flex justify-end gap-2">
+                                @if (!etkinlik.IptalEdildi && !etkinlik.AdminOnaylandi)
+                                {
+                                    <form asp-action="Onayla" asp-route-id="@etkinlik.Id" method="post" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="text-emerald-600 hover:text-emerald-700 font-medium px-2" title="Onayla">✅</button>
+                                    </form>
+                                }
+                                @if (!etkinlik.IptalEdildi && etkinlik.AdminOnaylandi)
+                                {
+                                    <form asp-action="Reddet" asp-route-id="@etkinlik.Id" method="post" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="text-amber-600 hover:text-amber-700 font-medium px-2" title="Onayı Kaldır" onclick="return confirm('Yayından kaldırmak istediğinize emin misiniz?');">⏸️</button>
+                                    </form>
+                                }
+
+                                <a href="/Admin/EtkinlikDuzenle/@etkinlik.Id" class="text-blue-600 hover:text-blue-700 font-medium px-2" title="Düzenle">✏️</a>
+                                
+                                <form asp-action="EtkinlikSil" asp-route-id="@etkinlik.Id" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="text-red-600 hover:text-red-700 font-medium px-2" onclick="return confirm('Sistemden tamamen (soft delete) silmek istediğinize emin misiniz?');" title="Sil">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Any())
+        {
+            <div class="p-8 text-center text-slate-500">
+                Kayıtlı etkinlik bulunmuyor.
+            </div>
+        }
+    </div>
+</div>

@@ -78,7 +78,15 @@ public class EfEtkinlikRepository : EfRepository<Etkinlik>, IEtkinlikRepository
     public async Task<IEnumerable<Etkinlik>> GetUyeEtkinlikleriAsync(string uyeId) =>
         await _context.Etkinlikler
             .Include(e => e.Katilimlar)
-            .Where(e => e.Katilimlar.Any(k => k.UyeId == uyeId) && e.AktifMi)
+            .Where(e => e.UyeId == uyeId && e.AktifMi)
             .OrderByDescending(e => e.Tarih)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Etkinlik>> GetTumEtkinliklerAdminAsync() =>
+        await _context.Etkinlikler
+            .Include(e => e.Uye)
+            .Include(e => e.Katilimlar)
+            .Where(e => e.AktifMi)
+            .OrderByDescending(e => e.OlusturulmaTarihi)
             .ToListAsync();
 }

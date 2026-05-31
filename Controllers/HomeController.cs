@@ -33,6 +33,7 @@ public class HomeController : Controller
                 Kontenjan = e.Kontenjan,
                 MevcutKatilimciSayisi = e.MevcutKatilimciSayisi(),
                 DoluMu = e.DoluMu(),
+                IptalEdildi = e.IptalEdildi,
                 OlusturanAdSoyad = e.Uye?.TamAd ?? "Platform"
             }),
             SecilenKategori = kategori,

@@ -26,4 +26,5 @@ public interface IEtkinlikRepository : IRepository<Etkinlik>
     Task<IEnumerable<Etkinlik>> GetOnayBekleyenlerAsync();
     Task<Etkinlik?> GetDetayliAsync(int id); // Katilimlar ve Uye dahil
     Task<IEnumerable<Etkinlik>> GetUyeEtkinlikleriAsync(string uyeId);
+    Task<IEnumerable<Etkinlik>> GetTumEtkinliklerAdminAsync();
 }

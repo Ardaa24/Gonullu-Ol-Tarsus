@@ -127,4 +127,62 @@ public class EtkinlikService : IEtkinlikService
 
         return true;
     }
+
+    public async Task<bool> KullaniciIptalEtAsync(int etkinlikId, string uyeId)
+    {
+        var etkinlik = await _etkinlikRepo.GetByIdAsync(etkinlikId);
+        if (etkinlik is null) return false;
+
+        try
+        {
+            etkinlik.KullaniciIptalEt(uyeId);
+            _etkinlikRepo.Update(etkinlik);
+            await _etkinlikRepo.SaveChangesAsync();
+
+            _logger.LogInformation("Etkinlik iptal edildi: Etkinlik={EtkinlikId}, Uye={UyeId}", etkinlikId, uyeId);
+            return true;
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("Etkinlik iptali reddedildi: {Sebep}", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> AdminEtkinlikSilAsync(int etkinlikId)
+    {
+        var etkinlik = await _etkinlikRepo.GetByIdAsync(etkinlikId);
+        if (etkinlik is null) return false;
+
+        etkinlik.Pasifles();
+        _etkinlikRepo.Update(etkinlik);
+        await _etkinlikRepo.SaveChangesAsync();
+
+        _logger.LogInformation("Etkinlik admin tarafından silindi (soft delete): {EtkinlikId}", etkinlikId);
+        return true;
+    }
+
+    public async Task<bool> AdminEtkinlikGuncelleAsync(int etkinlikId, string baslik, string aciklama, DateTime tarih, string konum, KategoriTip kategori, int kontenjan)
+    {
+        var etkinlik = await _etkinlikRepo.GetDetayliAsync(etkinlikId);
+        if (etkinlik is null) return false;
+
+        try
+        {
+            etkinlik.Guncelle(baslik, aciklama, tarih, konum, kategori, kontenjan);
+            _etkinlikRepo.Update(etkinlik);
+            await _etkinlikRepo.SaveChangesAsync();
+
+            _logger.LogInformation("Etkinlik admin tarafından güncellendi: {EtkinlikId}", etkinlikId);
+            return true;
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning("Admin güncellemesi reddedildi: {Sebep}", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<IEnumerable<Etkinlik>> GetTumEtkinliklerAdminAsync() =>
+        await _etkinlikRepo.GetTumEtkinliklerAdminAsync();
 }

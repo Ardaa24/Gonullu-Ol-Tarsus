@@ -47,8 +47,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<IEtkinlikRepository, EfEtkinlikRepository>();
 builder.Services.AddScoped<IEtkinlikService, EtkinlikService>();
+builder.Services.AddHostedService<GonulluOlTarsus.Services.Background.EtkinlikTemizlemeServisi>();
 
-
+// ──────────────────────────────────────────
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -25,4 +25,8 @@ public interface IEtkinlikService
     Task<bool> KatilimIptalEtAsync(int etkinlikId, string uyeId);
     Task<bool> AdminOnaylaAsync(int etkinlikId);
     Task<bool> AdminOnayiGeriAlAsync(int etkinlikId);
+    Task<bool> KullaniciIptalEtAsync(int etkinlikId, string uyeId);
+    Task<bool> AdminEtkinlikSilAsync(int etkinlikId);
+    Task<bool> AdminEtkinlikGuncelleAsync(int etkinlikId, string baslik, string aciklama, DateTime tarih, string konum, KategoriTip kategori, int kontenjan);
+    Task<IEnumerable<Etkinlik>> GetTumEtkinliklerAdminAsync();
 }

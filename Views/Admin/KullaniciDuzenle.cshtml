@@ -1,0 +1,57 @@
+@model AdminKullaniciDuzenleViewModel
+@{
+    ViewData["Title"] = "Kullanıcı Düzenle";
+}
+
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <nav class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+        <a href="/Admin" class="hover:text-brand-600 transition-colors">Admin Dashboard</a>
+        <span>›</span>
+        <a href="/Admin/Kullanicilar" class="hover:text-brand-600 transition-colors">Kullanıcılar</a>
+        <span>›</span>
+        <span class="text-slate-600 font-medium">Düzenle</span>
+    </nav>
+    <h1 class="text-2xl font-extrabold text-slate-800 mb-8">Kullanıcıyı Düzenle: @Model.TamAd</h1>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+        <form asp-action="KullaniciDuzenle" method="post" class="space-y-5">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="p-3 bg-red-50 text-red-700 rounded-xl text-sm hidden [&:not(:empty)]:block"></div>
+
+            <div>
+                <label asp-for="TamAd" class="block text-sm font-semibold text-slate-700 mb-1.5">Ad Soyad</label>
+                <input asp-for="TamAd" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-400 focus:outline-none" />
+                <span asp-validation-for="TamAd" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div>
+                <label asp-for="Email" class="block text-sm font-semibold text-slate-700 mb-1.5">E-Posta</label>
+                <input asp-for="Email" type="email" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-400 focus:outline-none" />
+                <span asp-validation-for="Email" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div>
+                <label asp-for="Rol" class="block text-sm font-semibold text-slate-700 mb-1.5">Kullanıcı Rolü</label>
+                <select asp-for="Rol" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-400 focus:outline-none appearance-none">
+                    <option value="Gonullu">Gönüllü (Normal Üye)</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                <span asp-validation-for="Rol" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100">
+                <label asp-for="YeniSifre" class="block text-sm font-semibold text-slate-700 mb-1.5">Yeni Şifre Belirle (Opsiyonel)</label>
+                <input asp-for="YeniSifre" type="password" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-400 focus:outline-none" placeholder="Değiştirmek istemiyorsanız boş bırakın" />
+                <p class="text-xs text-slate-400 mt-1">Eğer burayı doldurursanız kullanıcının şifresi bu değerle değiştirilir.</p>
+                <span asp-validation-for="YeniSifre" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <a href="/Admin/Kullanicilar" class="px-5 py-2.5 text-slate-500 rounded-xl hover:bg-gray-100 text-sm font-medium transition-all">İptal</a>
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-md transition-all text-sm">💾 Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,73 +1,121 @@
-@using GonulluOlTarsus.Domain.Entities
-@model IEnumerable<Etkinlik>
+@model AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Admin Paneli — Onay Bekleyenler";
+    ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8">
-        <h1 class="text-2xl font-extrabold text-slate-800 mb-2">⚙️ Admin Paneli</h1>
-        <p class="text-slate-400 text-sm">Onay bekleyen etkinlikleri inceleyin ve yayınlayın.</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-800 mb-2">📊 Dashboard</h1>
+            <p class="text-slate-400 text-sm">Gönüllü Ol | Tarsus platformunun genel durumu</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="/Admin/Etkinlikler" class="px-4 py-2 bg-white border border-gray-200 text-slate-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-all">
+                Etkinlikleri Yönet
+            </a>
+            <a href="/Admin/Kullanicilar" class="px-4 py-2 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-all shadow-sm">
+                Kullanıcıları Yönet
+            </a>
+        </div>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-            <span class="text-5xl">✅</span>
-            <h2 class="text-lg font-semibold text-slate-600 mt-4">Tüm etkinlikler incelendi</h2>
-            <p class="text-slate-400 text-sm mt-2">Onay bekleyen etkinlik bulunmuyor.</p>
+    <!-- Metrik Kartları -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl">👥</div>
+            <div>
+                <p class="text-sm font-semibold text-slate-400 mb-1">Toplam Üye</p>
+                <p class="text-2xl font-bold text-slate-800">@Model.ToplamUyeSayisi</p>
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="space-y-4">
-            @foreach (var etkinlik in Model)
-            {
-                <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-5">
-                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
-                                    ⏳ Onay Bekliyor
-                                </span>
-                                <span class="text-xs text-slate-400">
-                                    @etkinlik.OlusturulmaTarihi.ToString("dd MMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR"))
-                                </span>
-                            </div>
-                            <h3 class="font-bold text-slate-800 mb-1">@etkinlik.Baslik</h3>
-                            <p class="text-sm text-slate-400 mb-2">
-                                📅 @etkinlik.Tarih.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("tr-TR")) •
-                                📍 @etkinlik.Konum •
-                                👥 @etkinlik.Kontenjan kişilik
-                            </p>
-                            <p class="text-sm text-slate-600 line-clamp-2">@etkinlik.Aciklama</p>
-                            @if (etkinlik.Uye != null)
-                            {
-                                <p class="text-xs text-slate-400 mt-2">
-                                    Oluşturan: <strong>@etkinlik.Uye.TamAd</strong> (@etkinlik.Uye.Email)
-                                </p>
-                            }
-                        </div>
-                        <div class="flex gap-2 flex-shrink-0">
-                            <form asp-action="Onayla" asp-route-id="@etkinlik.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit"
-                                        class="px-4 py-2 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-all">
-                                    ✅ Onayla
-                                </button>
-                            </form>
-                            <form asp-action="Reddet" asp-route-id="@etkinlik.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit"
-                                        onclick="return confirm('Bu etkinliği reddetmek istediğinizden emin misiniz?')"
-                                        class="px-4 py-2 border border-red-200 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-50 transition-all">
-                                    ❌ Reddet
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            }
+        
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl">🌿</div>
+            <div>
+                <p class="text-sm font-semibold text-slate-400 mb-1">Aktif Etkinlik</p>
+                <p class="text-2xl font-bold text-slate-800">@Model.ToplamEtkinlikSayisi</p>
+            </div>
         </div>
-    }
+
+        <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-2xl">⏳</div>
+            <div>
+                <p class="text-sm font-semibold text-amber-600 mb-1">Onay Bekleyen</p>
+                <p class="text-2xl font-bold text-slate-800">@Model.OnayBekleyenEtkinlikSayisi</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-2xl">🤝</div>
+            <div>
+                <p class="text-sm font-semibold text-slate-400 mb-1">Toplam Katılım</p>
+                <p class="text-2xl font-bold text-slate-800">@Model.ToplamKatilimSayisi</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafikler -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Son 7 Günlük Üye Kaydı</h2>
+            <canvas id="uyeChart" class="w-full h-64"></canvas>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Son 7 Günlük Etkinlik Oluşturma</h2>
+            <canvas id="etkinlikChart" class="w-full h-64"></canvas>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const etiketler = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Son7GunEtiketleri));
+        const uyeVerileri = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Son7GunUyeKayitlari));
+        const etkinlikVerileri = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Son7GunEtkinlikleri));
+
+        // Üye Grafiği
+        new Chart(document.getElementById('uyeChart'), {
+            type: 'line',
+            data: {
+                labels: etiketler,
+                datasets: [{
+                    label: 'Yeni Üyeler',
+                    data: uyeVerileri,
+                    borderColor: '#2563eb', // blue-600
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // Etkinlik Grafiği
+        new Chart(document.getElementById('etkinlikChart'), {
+            type: 'bar',
+            data: {
+                labels: etiketler,
+                datasets: [{
+                    label: 'Yeni Etkinlikler',
+                    data: etkinlikVerileri,
+                    backgroundColor: '#16a34a', // emerald-600
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    </script>
+}

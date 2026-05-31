@@ -16,6 +16,7 @@ public class EtkinlikDetayViewModel
     public KategoriTip Kategori { get; set; }
     public int Kontenjan { get; set; }
     public bool AdminOnaylandi { get; set; }
+    public bool IptalEdildi { get; set; }
     public string OlusturanAdSoyad { get; set; } = string.Empty;
     public DateTime OlusturulmaTarihi { get; set; }
 
@@ -24,6 +25,7 @@ public class EtkinlikDetayViewModel
     // Oturum açık kullanıcıya göre durum
     public bool KullaniciGirisYapti { get; set; }
     public bool KullaniciZatenKatildi { get; set; }
+    public bool KullaniciKendiEtkinligi { get; set; }
     public bool EtkinlikDolu { get; set; }
     public bool EtkinlikGecmis { get; set; }
 

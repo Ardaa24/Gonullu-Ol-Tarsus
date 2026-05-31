@@ -21,6 +21,12 @@ public class Etkinlik : BaseEntity
     /// </summary>
     public bool AdminOnaylandi { get; private set; } = false;
 
+    /// <summary>
+    /// Etkinliğin kullanıcı veya admin tarafından iptal edilip edilmediği.
+    /// </summary>
+    public bool IptalEdildi { get; private set; } = false;
+    public DateTime? IptalTarihi { get; private set; }
+
     // Oluşturucu üye bilgisi
     public string UyeId { get; private set; } = string.Empty;
     public Uye? Uye { get; private set; }
@@ -98,6 +104,10 @@ public class Etkinlik : BaseEntity
             throw new InvalidOperationException("Geçmiş tarihli etkinliklere katılım yapılamaz.");
         if (!AdminOnaylandi)
             throw new InvalidOperationException("Onaylanmamış etkinliklere katılım yapılamaz.");
+        if (IptalEdildi)
+            throw new InvalidOperationException("İptal edilmiş bir etkinliğe katılım yapılamaz.");
+        if (UyeId == uyeId)
+            throw new InvalidOperationException("Kendi oluşturduğunuz etkinliğe katılamazsınız.");
         if (DoluMu())
             throw new InvalidOperationException("Etkinlik kontenjanı dolmuştur.");
         if (UyeZatenKatildi(uyeId))
@@ -136,6 +146,23 @@ public class Etkinlik : BaseEntity
     public void AdminOnayiGeriAl()
     {
         AdminOnaylandi = false;
+        GuncellenmeTarihiniAyarla();
+    }
+
+    /// <summary>
+    /// Kullanıcının kendi etkinliğini iptal etmesi.
+    /// </summary>
+    public void KullaniciIptalEt(string uyeId)
+    {
+        if (UyeId != uyeId)
+            throw new InvalidOperationException("Yalnızca etkinliği oluşturan kişi iptal edebilir.");
+        if (IptalEdildi)
+            throw new InvalidOperationException("Etkinlik zaten iptal edilmiş.");
+        if (Tarih <= DateTime.UtcNow)
+            throw new InvalidOperationException("Geçmiş tarihli etkinlikler iptal edilemez.");
+
+        IptalEdildi = true;
+        IptalTarihi = DateTime.UtcNow;
         GuncellenmeTarihiniAyarla();
     }
 

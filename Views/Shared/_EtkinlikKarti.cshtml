@@ -1,7 +1,7 @@
 @model EtkinlikOzetViewModel
 @* Partial View — DRY için tek kart bileşeni. _EtkinlikKarti.cshtml *@
 
-<article class="etkinlik-karti bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+<article class="etkinlik-karti bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group @(Model.IptalEdildi ? "opacity-60 grayscale-[50%]" : "")">
 
     <!-- Kategori Renk Şeridi -->
     <div class="h-1.5 @GetKategoriBandRengi(Model.Kategori)"></div>
@@ -22,6 +22,10 @@
         <!-- Başlık -->
         <h3 class="font-bold text-slate-800 text-base leading-snug mb-2 group-hover:text-brand-700 transition-colors line-clamp-2">
             @Model.Baslik
+            @if (Model.IptalEdildi)
+            {
+                <span class="inline-block ml-1 px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded uppercase tracking-wider align-middle">İptal Edildi</span>
+            }
         </h3>
 
         <!-- Açıklama -->

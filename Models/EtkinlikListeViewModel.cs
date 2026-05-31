@@ -26,6 +26,7 @@ public class EtkinlikOzetViewModel
     public int Kontenjan { get; set; }
     public int MevcutKatilimciSayisi { get; set; }
     public bool DoluMu { get; set; }
+    public bool IptalEdildi { get; set; }
     public string OlusturanAdSoyad { get; set; } = string.Empty;
 
     public int KalanKontenjan => Kontenjan - MevcutKatilimciSayisi;

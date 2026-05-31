@@ -35,6 +35,7 @@ public class EtkinlikController : Controller
             Kategori = etkinlik.Kategori,
             Kontenjan = etkinlik.Kontenjan,
             AdminOnaylandi = etkinlik.AdminOnaylandi,
+            IptalEdildi = etkinlik.IptalEdildi,
             OlusturanAdSoyad = etkinlik.Uye?.TamAd ?? "Platform",
             OlusturulmaTarihi = etkinlik.OlusturulmaTarihi,
             Katilimcilar = etkinlik.Katilimlar.Select(k => new KatilimciViewModel
@@ -44,6 +45,7 @@ public class EtkinlikController : Controller
             }),
             KullaniciGirisYapti = User.Identity?.IsAuthenticated ?? false,
             KullaniciZatenKatildi = kullaniciId != null && etkinlik.UyeZatenKatildi(kullaniciId),
+            KullaniciKendiEtkinligi = kullaniciId != null && etkinlik.UyeId == kullaniciId,
             EtkinlikDolu = etkinlik.DoluMu(),
             EtkinlikGecmis = etkinlik.Tarih <= DateTime.UtcNow
         };
@@ -122,6 +124,25 @@ public class EtkinlikController : Controller
             ? "Katılımınız iptal edildi."
             : "❌ İptal işlemi gerçekleştirilemedi.";
         TempData["MesajTipi"] = basarili ? "info" : "error";
+
+        return RedirectToAction("Detay", new { id });
+    }
+
+    // POST: /Etkinlik/IptalEt/5
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> IptalEt(int id)
+    {
+        var uyeId = _userManager.GetUserId(User);
+        if (uyeId is null) return Challenge();
+
+        var basarili = await _etkinlikService.KullaniciIptalEtAsync(id, uyeId);
+
+        TempData["Mesaj"] = basarili
+            ? "Etkinliğiniz başarıyla iptal edildi."
+            : "❌ Etkinlik iptal edilemedi.";
+        TempData["MesajTipi"] = basarili ? "success" : "error";
 
         return RedirectToAction("Detay", new { id });
     }
