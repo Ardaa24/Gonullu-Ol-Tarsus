@@ -17,6 +17,7 @@ public class Uye : IdentityUser
     // Navigasyon özellikleri
     public ICollection<Katilim> Katilimlar { get; private set; } = new List<Katilim>();
     public ICollection<Etkinlik> OlusturulanEtkinlikler { get; private set; } = new List<Etkinlik>();
+    public ICollection<Yorum> Yorumlar { get; private set; } = new List<Yorum>();
 
     /// <summary>
     /// Üyenin tam adını döndürür.

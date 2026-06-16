@@ -31,33 +31,7 @@ public class EtkinlikOzetViewModel
 
     public int KalanKontenjan => Kontenjan - MevcutKatilimciSayisi;
 
-    public string KategoriAdi => Kategori switch
-    {
-        KategoriTip.Cevre => "Çevre",
-        KategoriTip.Barinak => "Barınak",
-        KategoriTip.Egitim => "Eğitim",
-        KategoriTip.YasliBakimi => "Yaşlı Bakımı",
-        KategoriTip.Diger => "Diğer",
-        _ => "Bilinmiyor"
-    };
-
-    public string KategoriRenkSinifi => Kategori switch
-    {
-        KategoriTip.Cevre => "badge-cevre",
-        KategoriTip.Barinak => "badge-barinak",
-        KategoriTip.Egitim => "badge-egitim",
-        KategoriTip.YasliBakimi => "badge-yasli",
-        KategoriTip.Diger => "badge-diger",
-        _ => "badge-diger"
-    };
-
-    public string KategoriEmoji => Kategori switch
-    {
-        KategoriTip.Cevre => "🌿",
-        KategoriTip.Barinak => "🐾",
-        KategoriTip.Egitim => "📚",
-        KategoriTip.YasliBakimi => "💛",
-        KategoriTip.Diger => "🤝",
-        _ => "🤝"
-    };
+    public string KategoriAdi => KategoriHelper.KategoriAdiGetir(Kategori);
+    public string KategoriRenkSinifi => KategoriHelper.KategoriRenkSinifiGetir(Kategori);
+    public string KategoriEmoji => KategoriHelper.KategoriEmojiGetir(Kategori);
 }

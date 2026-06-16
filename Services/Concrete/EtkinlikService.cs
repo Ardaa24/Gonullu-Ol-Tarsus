@@ -185,4 +185,21 @@ public class EtkinlikService : IEtkinlikService
 
     public async Task<IEnumerable<Etkinlik>> GetTumEtkinliklerAdminAsync() =>
         await _etkinlikRepo.GetTumEtkinliklerAdminAsync();
+
+    public async Task<IEnumerable<Etkinlik>> GetUyeKatildigiEtkinliklerAsync(string uyeId) =>
+        await _etkinlikRepo.GetUyeKatildigiEtkinliklerAsync(uyeId);
+
+    public async Task<IEnumerable<Etkinlik>> GetUyeEtkinlikleriAsync(string uyeId) =>
+        await _etkinlikRepo.GetUyeEtkinlikleriAsync(uyeId);
+
+    public async Task<(int ToplamAktifEtkinlik, int OnayBekleyenSayisi, int ToplamKatilim)> GetDashboardIstatistikleriAsync()
+    {
+        var tumEtkinlikler = await _etkinlikRepo.GetTumEtkinliklerAdminAsync();
+        var liste = tumEtkinlikler.ToList();
+        return (
+            ToplamAktifEtkinlik: liste.Count,
+            OnayBekleyenSayisi: liste.Count(e => !e.AdminOnaylandi),
+            ToplamKatilim: liste.Sum(e => e.MevcutKatilimciSayisi())
+        );
+    }
 }

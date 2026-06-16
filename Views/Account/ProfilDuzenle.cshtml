@@ -1,0 +1,55 @@
+@model ProfilDuzenleViewModel
+@{
+    ViewData["Title"] = "Profili Düzenle";
+}
+
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-gray-100 relative overflow-hidden">
+        
+        <!-- Dekoratif Arka Plan -->
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-400 to-brand-600"></div>
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        
+        <div class="text-center relative z-10">
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Profili Düzenle</h2>
+            <p class="mt-2 text-sm text-slate-500">Bilgilerinizi güncelleyin.</p>
+        </div>
+
+        <form class="mt-8 space-y-6 relative z-10" asp-action="ProfilDuzenle" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"></div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="Ad" class="block text-sm font-semibold text-slate-700 mb-1"></label>
+                    <input asp-for="Ad" class="appearance-none relative block w-full px-4 py-3 border border-gray-200 placeholder-gray-400 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all sm:text-sm bg-gray-50 focus:bg-white" placeholder="Adınız">
+                    <span asp-validation-for="Ad" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+                <div>
+                    <label asp-for="Soyad" class="block text-sm font-semibold text-slate-700 mb-1"></label>
+                    <input asp-for="Soyad" class="appearance-none relative block w-full px-4 py-3 border border-gray-200 placeholder-gray-400 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all sm:text-sm bg-gray-50 focus:bg-white" placeholder="Soyadınız">
+                    <span asp-validation-for="Soyad" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+            </div>
+
+            <div>
+                <label asp-for="Biyografi" class="block text-sm font-semibold text-slate-700 mb-1"></label>
+                <textarea asp-for="Biyografi" rows="4" class="appearance-none relative block w-full px-4 py-3 border border-gray-200 placeholder-gray-400 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all sm:text-sm bg-gray-50 focus:bg-white resize-none" placeholder="Kendinizden bahsedin..."></textarea>
+                <span asp-validation-for="Biyografi" class="text-xs text-red-500 mt-1 block"></span>
+            </div>
+
+            <div class="flex gap-4 pt-2">
+                <a href="/Account/Profil" class="w-1/3 flex justify-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm text-sm font-bold text-slate-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-all">
+                    İptal
+                </a>
+                <button type="submit" class="w-2/3 group relative flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 shadow-lg shadow-brand-500/30 transition-all overflow-hidden">
+                    <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></span>
+                    Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -32,25 +32,11 @@ public class EtkinlikDetayViewModel
     public int KatilimciSayisi => Katilimcilar.Count();
     public int KalanKontenjan => Kontenjan - KatilimciSayisi;
 
-    public string KategoriAdi => Kategori switch
-    {
-        KategoriTip.Cevre => "Çevre",
-        KategoriTip.Barinak => "Barınak",
-        KategoriTip.Egitim => "Eğitim",
-        KategoriTip.YasliBakimi => "Yaşlı Bakımı",
-        KategoriTip.Diger => "Diğer",
-        _ => "Bilinmiyor"
-    };
+    public IEnumerable<YorumViewModel> Yorumlar { get; set; } = Enumerable.Empty<YorumViewModel>();
+    public int YorumSayisi => Yorumlar.Count();
 
-    public string KategoriEmoji => Kategori switch
-    {
-        KategoriTip.Cevre => "🌿",
-        KategoriTip.Barinak => "🐾",
-        KategoriTip.Egitim => "📚",
-        KategoriTip.YasliBakimi => "💛",
-        KategoriTip.Diger => "🤝",
-        _ => "🤝"
-    };
+    public string KategoriAdi => KategoriHelper.KategoriAdiGetir(Kategori);
+    public string KategoriEmoji => KategoriHelper.KategoriEmojiGetir(Kategori);
 }
 
 /// <summary>
@@ -60,4 +46,16 @@ public class KatilimciViewModel
 {
     public string AdSoyad { get; set; } = string.Empty;
     public DateTime KatilimTarihi { get; set; }
+}
+
+/// <summary>
+/// Etkinlik detay sayfasındaki tek bir yorum.
+/// </summary>
+public class YorumViewModel
+{
+    public int Id { get; set; }
+    public string Icerik { get; set; } = string.Empty;
+    public string YazarAd { get; set; } = string.Empty;
+    public DateTime YazilmaTarihi { get; set; }
+    public bool KendiYorumu { get; set; }
 }

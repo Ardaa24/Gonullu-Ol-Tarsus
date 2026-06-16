@@ -144,8 +144,89 @@
                         <p class="mb-3 text-sm">@paragraf</p>
                     }
                 </div>
-            </div>
         </div>
+
+        <!-- Yorumlar / Soru-Cevap Kartı -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-1 h-5 bg-brand-500 rounded-full"></span>
+                Yorumlar & Sorular
+                <span class="text-xs bg-gray-100 text-slate-500 px-2 py-0.5 rounded-full font-semibold ml-auto">
+                    @Model.YorumSayisi yorum
+                </span>
+            </h2>
+
+            <!-- Yorum Formu -->
+            @if (Model.KullaniciGirisYapti && Model.AdminOnaylandi && !Model.IptalEdildi)
+            {
+                <form asp-controller="Etkinlik" asp-action="YorumEkle" method="post" class="mb-6">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="etkinlikId" value="@Model.Id" />
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span class="text-xs font-bold text-brand-600">✍</span>
+                        </div>
+                        <div class="flex-1">
+                            <textarea name="icerik" rows="3" maxlength="1000"
+                                      placeholder="Bir soru sorun veya yorum bırakın..."
+                                      class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-sm resize-none"></textarea>
+                            <div class="flex justify-end mt-2">
+                                <button type="submit"
+                                        class="px-5 py-2 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-all text-sm">
+                                    💬 Yorum Yap
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            }
+            else if (!Model.KullaniciGirisYapti)
+            {
+                <div class="mb-6 p-3 bg-gray-50 rounded-xl text-center">
+                    <p class="text-sm text-slate-400">
+                        Yorum yapmak için <a href="/Account/Giris?geriDonusUrl=/Etkinlik/Detay/@Model.Id" class="text-brand-600 font-semibold hover:underline">giriş yapın</a>.
+                    </p>
+                </div>
+            }
+
+            <!-- Yorum Listesi -->
+            @if (!Model.Yorumlar.Any())
+            {
+                <div class="text-center py-6">
+                    <p class="text-slate-400 text-sm">Henüz yorum yok.</p>
+                    <p class="text-slate-300 text-xs mt-1">İlk yorumu sen yaz! 💬</p>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-4">
+                    @foreach (var yorum in Model.Yorumlar)
+                    {
+                        <div class="flex gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors @(yorum.KendiYorumu ? "bg-brand-50/50 border border-brand-100" : "")">
+                            <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs font-bold text-brand-600">
+                                    @(yorum.YazarAd.Length > 0 ? yorum.YazarAd[0].ToString().ToUpper() : "?")
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-sm font-semibold text-slate-700">@yorum.YazarAd</span>
+                                    @if (yorum.KendiYorumu)
+                                    {
+                                        <span class="text-xs bg-brand-100 text-brand-600 px-1.5 py-0.5 rounded font-medium">Siz</span>
+                                    }
+                                    <span class="text-xs text-slate-400">
+                                        @yorum.YazilmaTarihi.ToString("dd MMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR"))
+                                    </span>
+                                </div>
+                                <p class="text-sm text-slate-600 leading-relaxed">@yorum.Icerik</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
 
         <!-- ── SAĞ SÜTUN: Katılım + Katılımcı Listesi (1/3) ── -->
         <div class="space-y-5">

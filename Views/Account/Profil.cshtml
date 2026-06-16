@@ -1,0 +1,162 @@
+@model ProfilViewModel
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Sol Sütun: Kullanıcı Bilgileri -->
+        <div class="md:col-span-1 space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+                <div class="w-24 h-24 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
+                    <span class="text-3xl font-bold text-brand-600">
+                        @(Model.TamAd.Length > 0 ? Model.TamAd[0].ToString().ToUpper() : "?")
+                    </span>
+                </div>
+                <h1 class="text-xl font-bold text-slate-800">@Model.TamAd</h1>
+                <p class="text-sm text-slate-500 mb-4">@Model.Email</p>
+                
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-200 mb-4">
+                    @Model.Rol
+                </span>
+                
+                <div class="text-left text-sm text-slate-600 mb-6 bg-gray-50 p-4 rounded-xl">
+                    <h3 class="font-semibold text-slate-800 mb-2">Hakkımda</h3>
+                    <p>@(string.IsNullOrWhiteSpace(Model.Biyografi) ? "Henüz bir biyografi eklenmemiş." : Model.Biyografi)</p>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm text-slate-500 pt-4 border-t border-gray-100">
+                    <span>Kayıt Tarihi</span>
+                    <span class="font-medium text-slate-700">@Model.KayitTarihi.ToString("dd MMM yyyy")</span>
+                </div>
+                
+                @if (Model.KendiProfili)
+                {
+                    <a href="/Account/ProfilDuzenle" class="mt-6 block w-full py-2.5 bg-brand-50 text-brand-700 font-semibold rounded-xl hover:bg-brand-100 transition-colors text-sm">
+                        Profili Düzenle
+                    </a>
+                }
+            </div>
+            
+            <!-- İstatistikler -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="font-bold text-slate-800 mb-4">İstatistikler</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span class="text-sm text-slate-600">Katıldığı Etkinlik</span>
+                        <span class="font-bold text-brand-600">@Model.ToplamKatilim</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span class="text-sm text-slate-600">Oluşturduğu Etkinlik</span>
+                        <span class="font-bold text-brand-600">@Model.ToplamOlusturulan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Sütun: Etkinlikler -->
+        <div class="md:col-span-2 space-y-6">
+            
+            <!-- Katıldığı Etkinlikler -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="w-1 h-5 bg-brand-500 rounded-full"></span>
+                    Katıldığı Etkinlikler
+                </h2>
+                
+                @if (!Model.KatildigiEtkinlikler.Any())
+                {
+                    <div class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <p class="text-slate-500 text-sm">Henüz bir etkinliğe katılmamış.</p>
+                        @if (Model.KendiProfili)
+                        {
+                            <a href="/" class="mt-2 inline-block text-brand-600 font-semibold hover:underline text-sm">Etkinlikleri Keşfet</a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="space-y-3">
+                        @foreach (var etkinlik in Model.KatildigiEtkinlikler)
+                        {
+                            <a href="/Etkinlik/Detay/@etkinlik.Id" class="block p-4 rounded-xl border border-gray-100 hover:border-brand-200 hover:shadow-md transition-all group relative overflow-hidden">
+                                @if (etkinlik.IptalEdildi)
+                                {
+                                    <div class="absolute inset-0 bg-red-50/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10">
+                                        <span class="px-3 py-1 bg-white text-red-600 rounded-full text-xs font-bold shadow-sm">İptal Edildi</span>
+                                    </div>
+                                }
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-0">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs text-slate-400">@etkinlik.KategoriEmoji @etkinlik.KategoriAdi</span>
+                                            @if (etkinlik.Gecmis)
+                                            {
+                                                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase font-semibold">Geçmiş</span>
+                                            }
+                                        </div>
+                                        <h3 class="font-semibold text-slate-800 group-hover:text-brand-600 transition-colors">@etkinlik.Baslik</h3>
+                                    </div>
+                                    <div class="text-left sm:text-right">
+                                        <p class="text-sm font-medium text-slate-600">@etkinlik.Tarih.ToString("dd MMM yyyy")</p>
+                                        <p class="text-xs text-slate-400">Saat @etkinlik.Tarih.ToString("HH:mm")</p>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Oluşturduğu Etkinlikler -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="w-1 h-5 bg-blue-500 rounded-full"></span>
+                    Oluşturduğu Etkinlikler
+                </h2>
+                
+                @if (!Model.OlusturduguEtkinlikler.Any())
+                {
+                    <div class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <p class="text-slate-500 text-sm">Henüz bir etkinlik oluşturmamış.</p>
+                        @if (Model.KendiProfili)
+                        {
+                            <a href="/Etkinlik/Olustur" class="mt-2 inline-block text-blue-600 font-semibold hover:underline text-sm">Etkinlik Oluştur</a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="space-y-3">
+                        @foreach (var etkinlik in Model.OlusturduguEtkinlikler)
+                        {
+                            <a href="/Etkinlik/Detay/@etkinlik.Id" class="block p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all group">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs text-slate-400">@etkinlik.KategoriEmoji @etkinlik.KategoriAdi</span>
+                                            @if (etkinlik.IptalEdildi)
+                                            {
+                                                <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase font-semibold">İptal Edildi</span>
+                                            }
+                                            else if (!etkinlik.AdminOnaylandi)
+                                            {
+                                                <span class="text-[10px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded uppercase font-semibold">Onay Bekliyor</span>
+                                            }
+                                        </div>
+                                        <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">@etkinlik.Baslik</h3>
+                                    </div>
+                                    <div class="text-left sm:text-right">
+                                        <p class="text-sm font-medium text-slate-600">@etkinlik.Tarih.ToString("dd MMM yyyy")</p>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>

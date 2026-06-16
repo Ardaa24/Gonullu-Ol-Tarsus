@@ -1,5 +1,4 @@
 using GonulluOlTarsus.Domain.Entities;
-using GonulluOlTarsus.Infrastructure.Data;
 using GonulluOlTarsus.Models;
 using GonulluOlTarsus.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
@@ -14,27 +13,26 @@ public class AdminController : Controller
 {
     private readonly IEtkinlikService _etkinlikService;
     private readonly UserManager<Uye> _userManager;
-    private readonly AppDbContext _context;
 
-    public AdminController(IEtkinlikService etkinlikService, UserManager<Uye> userManager, AppDbContext context)
+    public AdminController(IEtkinlikService etkinlikService, UserManager<Uye> userManager)
     {
         _etkinlikService = etkinlikService;
         _userManager = userManager;
-        _context = context;
     }
 
     // GET: /Admin (Dashboard)
     public async Task<IActionResult> Index()
     {
         var topUye = await _userManager.Users.CountAsync();
-        var tumEtkinlikler = await _context.Etkinlikler.Include(e => e.Katilimlar).ToListAsync();
+        var istatistikler = await _etkinlikService.GetDashboardIstatistikleriAsync();
+        var tumEtkinlikler = (await _etkinlikService.GetTumEtkinliklerAdminAsync()).ToList();
 
         var model = new AdminDashboardViewModel
         {
             ToplamUyeSayisi = topUye,
-            ToplamEtkinlikSayisi = tumEtkinlikler.Count(e => e.AktifMi),
-            OnayBekleyenEtkinlikSayisi = tumEtkinlikler.Count(e => !e.AdminOnaylandi && e.AktifMi),
-            ToplamKatilimSayisi = tumEtkinlikler.Sum(e => e.Katilimlar.Count),
+            ToplamEtkinlikSayisi = istatistikler.ToplamAktifEtkinlik,
+            OnayBekleyenEtkinlikSayisi = istatistikler.OnayBekleyenSayisi,
+            ToplamKatilimSayisi = istatistikler.ToplamKatilim,
             
             // Son 7 Gün grafikleri için sahte veriler yerine gerçeğe yakın veriler
             Son7GunEtiketleri = Enumerable.Range(0, 7).Select(i => DateTime.UtcNow.AddDays(-6 + i).ToString("dd MMM")).ToList(),
@@ -72,20 +70,16 @@ public class AdminController : Controller
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound();
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var currentUserRoles = await _userManager.GetRolesAsync(await _userManager.GetUserAsync(User));
-
         // Admin kendi rol arkadaşlarını veya Super Adminleri düzenleyemez (Super Admin herkesi düzenleyebilir)
-        if (!currentUserRoles.Contains("Super Admin"))
+        var (yetkiVar, hataMesaji) = await YetkiKontroluYapAsync(user);
+        if (!yetkiVar)
         {
-            if (roles.Contains("Super Admin") || (roles.Contains("Admin") && user.Id != _userManager.GetUserId(User)))
-            {
-                TempData["Mesaj"] = "Yetkiniz bu kullanıcıyı düzenlemek için yeterli değil.";
-                TempData["MesajTipi"] = "error";
-                return RedirectToAction(nameof(Kullanicilar));
-            }
+            TempData["Mesaj"] = hataMesaji;
+            TempData["MesajTipi"] = "error";
+            return RedirectToAction(nameof(Kullanicilar));
         }
 
+        var roles = await _userManager.GetRolesAsync(user);
         var model = new AdminKullaniciDuzenleViewModel
         {
             Id = user.Id,
@@ -107,24 +101,22 @@ public class AdminController : Controller
         var user = await _userManager.FindByIdAsync(model.Id);
         if (user == null) return NotFound();
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var currentUserRoles = await _userManager.GetRolesAsync(await _userManager.GetUserAsync(User));
-
         // Yetki Kontrolü
-        if (!currentUserRoles.Contains("Super Admin"))
+        var (yetkiVar, hataMesaji) = await YetkiKontroluYapAsync(user);
+        if (!yetkiVar)
         {
-            if (roles.Contains("Super Admin") || (roles.Contains("Admin") && user.Id != _userManager.GetUserId(User)))
-            {
-                TempData["Mesaj"] = "Yetkiniz bu kullanıcıyı düzenlemek için yeterli değil.";
-                TempData["MesajTipi"] = "error";
-                return RedirectToAction(nameof(Kullanicilar));
-            }
-            // Admin başka birini Super Admin yapamaz
-            if (model.Rol == "Super Admin")
-            {
-                ModelState.AddModelError("", "Süper Admin yetkisi verme hakkınız yok.");
-                return View(model);
-            }
+            TempData["Mesaj"] = hataMesaji;
+            TempData["MesajTipi"] = "error";
+            return RedirectToAction(nameof(Kullanicilar));
+        }
+
+        var mevcutKullanici = await _userManager.GetUserAsync(User);
+        var mevcutRoller = await _userManager.GetRolesAsync(mevcutKullanici!);
+        // Admin başka birini Super Admin yapamaz
+        if (!mevcutRoller.Contains("Super Admin") && model.Rol == "Super Admin")
+        {
+            ModelState.AddModelError("", "Süper Admin yetkisi verme hakkınız yok.");
+            return View(model);
         }
 
         if (string.IsNullOrWhiteSpace(model.TamAd))
@@ -260,5 +252,27 @@ public class AdminController : Controller
         TempData["Mesaj"] = "Etkinlik reddedildi.";
         TempData["MesajTipi"] = "info";
         return RedirectToAction(nameof(Etkinlikler));
+    }
+
+    /// <summary>
+    /// Giriş yapan kullanıcının hedef kullanıcıyı düzenleme yetkisini kontrol eder.
+    /// </summary>
+    private async Task<(bool YetkiVar, string? HataMesaji)> YetkiKontroluYapAsync(Uye hedefKullanici)
+    {
+        var hedefRoller = await _userManager.GetRolesAsync(hedefKullanici);
+        var mevcutKullanici = await _userManager.GetUserAsync(User);
+        if (mevcutKullanici == null) return (false, "Oturum bilgisi alınamadı.");
+        
+        var mevcutRoller = await _userManager.GetRolesAsync(mevcutKullanici);
+
+        if (!mevcutRoller.Contains("Super Admin"))
+        {
+            if (hedefRoller.Contains("Super Admin") || (hedefRoller.Contains("Admin") && hedefKullanici.Id != mevcutKullanici.Id))
+            {
+                return (false, "Yetkiniz bu kullanıcıyı düzenlemek için yeterli değil.");
+            }
+        }
+
+        return (true, null);
     }
 }

@@ -11,11 +11,13 @@ public class EtkinlikController : Controller
 {
     private readonly IEtkinlikService _etkinlikService;
     private readonly UserManager<Uye> _userManager;
+    private readonly IYorumService _yorumService;
 
-    public EtkinlikController(IEtkinlikService etkinlikService, UserManager<Uye> userManager)
+    public EtkinlikController(IEtkinlikService etkinlikService, UserManager<Uye> userManager, IYorumService yorumService)
     {
         _etkinlikService = etkinlikService;
         _userManager = userManager;
+        _yorumService = yorumService;
     }
 
     // GET: /Etkinlik/Detay/5
@@ -62,6 +64,15 @@ public class EtkinlikController : Controller
             EtkinlikDolu = etkinlik.DoluMu(),
             EtkinlikGecmis = etkinlik.Tarih <= DateTime.UtcNow
         };
+        var yorumlar = await _yorumService.GetEtkinlikYorumlariAsync(id);
+        model.Yorumlar = yorumlar.Select(y => new YorumViewModel
+        {
+            Id = y.Id,
+            Icerik = y.Icerik,
+            YazarAd = y.Uye?.TamAd ?? "Anonim",
+            YazilmaTarihi = y.OlusturulmaTarihi,
+            KendiYorumu = kullaniciId != null && y.UyeId == kullaniciId
+        });
 
         return View(model);
     }
@@ -159,5 +170,36 @@ public class EtkinlikController : Controller
         TempData["MesajTipi"] = basarili ? "success" : "error";
 
         return RedirectToAction("Detay", new { id });
+    }
+
+    // POST: /Etkinlik/YorumEkle
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> YorumEkle(int etkinlikId, string icerik)
+    {
+        var uyeId = _userManager.GetUserId(User);
+        if (uyeId is null) return Challenge();
+
+        if (string.IsNullOrWhiteSpace(icerik))
+        {
+            TempData["Mesaj"] = "Yorum içeriği boş olamaz.";
+            TempData["MesajTipi"] = "error";
+            return RedirectToAction("Detay", new { id = etkinlikId });
+        }
+
+        try
+        {
+            await _yorumService.YorumEkleAsync(icerik.Trim(), etkinlikId, uyeId);
+            TempData["Mesaj"] = "Yorumunuz başarıyla eklendi.";
+            TempData["MesajTipi"] = "success";
+        }
+        catch (ArgumentException)
+        {
+            TempData["Mesaj"] = "Yorum eklenirken bir hata oluştu.";
+            TempData["MesajTipi"] = "error";
+        }
+
+        return RedirectToAction("Detay", new { id = etkinlikId });
     }
 }

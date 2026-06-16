@@ -89,4 +89,11 @@ public class EfEtkinlikRepository : EfRepository<Etkinlik>, IEtkinlikRepository
             .Where(e => e.AktifMi)
             .OrderByDescending(e => e.OlusturulmaTarihi)
             .ToListAsync();
+
+    public async Task<IEnumerable<Etkinlik>> GetUyeKatildigiEtkinliklerAsync(string uyeId) =>
+        await _context.Etkinlikler
+            .Include(e => e.Katilimlar)
+            .Where(e => e.AktifMi && e.Katilimlar.Any(k => k.UyeId == uyeId))
+            .OrderByDescending(e => e.Tarih)
+            .ToListAsync();
 }

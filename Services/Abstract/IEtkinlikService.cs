@@ -29,4 +29,7 @@ public interface IEtkinlikService
     Task<bool> AdminEtkinlikSilAsync(int etkinlikId);
     Task<bool> AdminEtkinlikGuncelleAsync(int etkinlikId, string baslik, string aciklama, DateTime tarih, string konum, KategoriTip kategori, int kontenjan);
     Task<IEnumerable<Etkinlik>> GetTumEtkinliklerAdminAsync();
+    Task<IEnumerable<Etkinlik>> GetUyeKatildigiEtkinliklerAsync(string uyeId);
+    Task<IEnumerable<Etkinlik>> GetUyeEtkinlikleriAsync(string uyeId);
+    Task<(int ToplamAktifEtkinlik, int OnayBekleyenSayisi, int ToplamKatilim)> GetDashboardIstatistikleriAsync();
 }

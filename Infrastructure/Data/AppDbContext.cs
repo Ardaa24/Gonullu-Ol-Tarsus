@@ -15,6 +15,7 @@ public class AppDbContext : IdentityDbContext<Uye>
 
     public DbSet<Etkinlik> Etkinlikler => Set<Etkinlik>();
     public DbSet<Katilim> Katilimlar => Set<Katilim>();
+    public DbSet<Yorum> Yorumlar => Set<Yorum>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +70,28 @@ public class AppDbContext : IdentityDbContext<Uye>
                   .WithMany(u => u.Katilimlar)
                   .HasForeignKey(k => k.UyeId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // --- Yorum Konfigürasyonu ---
+        modelBuilder.Entity<Yorum>(entity =>
+        {
+            entity.HasKey(y => y.Id);
+            entity.Property(y => y.Icerik)
+                  .IsRequired()
+                  .HasMaxLength(1000);
+
+            entity.HasOne(y => y.Etkinlik)
+                  .WithMany()
+                  .HasForeignKey(y => y.EtkinlikId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(y => y.Uye)
+                  .WithMany(u => u.Yorumlar)
+                  .HasForeignKey(y => y.UyeId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // Soft-Delete
+            entity.HasQueryFilter(y => y.AktifMi);
         });
 
         // --- Uye Tablo Adı Düzenleme ---
